@@ -1,0 +1,9 @@
+title 0.6: New note in Single page app diagram
+
+note over browser: The user fills out and submits the form.
+
+browser->server: POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+note over browser:Content-type:application/json, Payload:{"content": "☕","date": "2023-10-16T00:59:06.217Z"}
+server-->browser: response: Note Created
+
+note over browser:  Rerenders the note list on the page and sends the new note to the server.
