@@ -28,8 +28,9 @@ const App = () => {
       <h2>Anecdote of the day</h2>
       {anecdotes[selected]}
       <p>has {allVotes[selected]} {allVotes[selected] === 1 ? 'vote' : 'votes'}</p>
-      <p><button onClick={handleNext}>next anecdote</button>
+      <p>
         <button onClick={() => setAllVotes(allVotes.map((vote, index) => index === selected ? vote + 1 : vote))}>vote</button>
+        <button onClick={handleNext}>next anecdote</button>
       </p>
       <h2>Anecdote with most votes</h2>
       {anecdotes[allVotes.indexOf(Math.max(...allVotes))]}
