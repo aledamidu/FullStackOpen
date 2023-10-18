@@ -63,7 +63,9 @@ const App = () => {
     window.confirm('Are you sure?') && remove(id).then(() => {
       setPetsonsUpdate(!personsUpdate)
     }).catch((error) => {
+
       if (error.response.status === 404) {
+        setPetsonsUpdate(!personsUpdate)
         showMessage({ message: "Person already Deleted", type: "error" })
       } else {
         showMessage({ message: "Something went wrong", type: "error" })
