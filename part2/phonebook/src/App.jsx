@@ -2,41 +2,84 @@ import { useState } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import { create, getAll, remove, update } from './api/personsApi'
+import { useEffect } from 'react'
+import Notification from './components/Notification'
+
 
 const App = () => {
-
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
   ])
+  const [personsUpdate, setPetsonsUpdate] = useState(false)
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [message, setMessage] = useState('')
+
+
+  useEffect(() => {
+    getAll().then(data => {
+      setPersons(data)
+    })
+  }, [personsUpdate])
+
+  const showMessage = (message) => {
+    setMessage(message);
+    setTimeout(() => {
+      setMessage(null);
+    }, 5000);
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault()
     if (newName === '' || newNumber === '') {
-      return alert("Please enter name and number")
+      showMessage({ message: 'Name or number is missing', type: 'error' })
+      return
     }
     else if (persons.find(person => person.name === newName)) {
-      return alert(newName + ' is already added to phonebook')
+      window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`) && update(persons.find(person => person.name === newName).id, { name: newName, number: newNumber })
+        .then(() => {
+          setPetsonsUpdate(!personsUpdate)
+          showMessage({ message: `Updated ${newName} successfully`, type: 'success' })
+        }).catch(() => {
+          showMessage({ message: "Something went wrong", type: "error" })
+        })
+
+      return
     }
-    setPersons(persons.concat({ name: newName, number: newNumber }))
-    setNewName('')
-    setNewNumber('')
+    create({ name: newName, number: newNumber }).then(() => {
+      setPetsonsUpdate(!personsUpdate)
+      showMessage({ message: `Added ${newName} successfully`, type: 'success' })
+      setNewName('')
+      setNewNumber('')
+    }).catch(() => {
+      showMessage({ message: "Something went wrong", type: "error" })
+    })
+
   }
   const personsToShow = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
+
+  const handleDelete = (id) => {
+    window.confirm('Are you sure?') && remove(id).then(() => {
+      setPetsonsUpdate(!personsUpdate)
+    }).catch((error) => {
+      if (error.response.status === 404) {
+        showMessage({ message: "Person already Deleted", type: "error" })
+      } else {
+        showMessage({ message: "Something went wrong", type: "error" })
+      }
+    })
+  }
 
   return (
     <div>
       <h2>Phonebook</h2>
+      {message && <Notification message={message} />}
       <Filter filter={filter} setFilter={setFilter} />
       <h2>Add a new</h2>
       <PersonForm handleSubmit={handleSubmit} name={{ newName, setNewName }} number={{ newNumber, setNewNumber }} />
       <h2>Numbers</h2>
-      <Persons persons={personsToShow} />
+      <Persons persons={personsToShow} handleDelete={handleDelete} />
     </div>
   )
 }
