@@ -8,21 +8,21 @@ const Person = require('./models/persons')
 app.use(express.json())
 app.use(cors())
 
-morgan.token('body', (req, res) => JSON.stringify(req.body));
+morgan.token('body', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 const PORT = 3001
 
-
-
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (res) => {
   Person.find({}).then((persons) => {
     res.json(persons)
   })
 })
 
-app.get("/info", (req, res) => {
-  res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`)
+app.get('/info', (res) => {
+  Person.find({}).then((persons) => {
+    res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`)
+  })
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
@@ -41,7 +41,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
-    .then(result => {
+    .then(() => {
       res.status(204).end()
     })
     .catch(error => next(error))
